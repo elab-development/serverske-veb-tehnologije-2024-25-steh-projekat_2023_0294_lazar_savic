@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->integer('kvadratura');
             $table->string('adresa');
             $table->enum('tip', ['stan', 'kuca', 'poslovni_prostor', 'zemljiste']);
-            $table->enum('status', ['prodaja', 'izdvajanje']);
+            $table->enum('status', ['prodaja', 'izdavanje']);
             $table->boolean('is_istaknuto')->default(false);
             $table->string('slika_putanja')->nullable();
 

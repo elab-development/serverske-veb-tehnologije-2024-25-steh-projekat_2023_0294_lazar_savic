@@ -9,6 +9,8 @@ class Upit extends Model
 {
     use HasFactory;
 
+    protected $table = 'upiti';
+
     protected $fillable = [
         'poruka',
         'kontakt_telefon',
