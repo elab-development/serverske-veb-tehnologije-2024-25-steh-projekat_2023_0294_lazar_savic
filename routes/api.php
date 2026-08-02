@@ -1,41 +1,69 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\GradController;
-use App\Http\Controllers\KreditnaKalkulacijaController;
-use App\Http\Controllers\NekretninaController;
-use App\Http\Controllers\UpitController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NekretninaController;
+use App\Http\Controllers\GradController;
+use App\Http\Controllers\UpitController;
+use App\Http\Controllers\KreditnaKalkulacijaController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ExternalApiController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+/*
+|--------------------------------------------------------------------------
+| Javne Rute (Dostupne svima)
+|--------------------------------------------------------------------------
+*/
 
+// Autentifikacija i Password Reset
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetToken']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
+// Pregled i Pretraga Nekretnina
 Route::get('/nekretnine', [NekretninaController::class, 'index']);
+Route::get('/nekretnine/pretraga', [NekretninaController::class, 'pretraga']);
 Route::get('/nekretnine/{id}', [NekretninaController::class, 'show']);
-Route::get('/nekretnine-pretraga', [NekretninaController::class, 'pretraga']);
 
-Route::get("/gradovi", [GradController::class, 'index']);
-Route::get("/gradovi/{id}", [GradController::class, 'nekretnineUGradu']);
-Route::get("/gradovi-statistika", [GradController::class, 'statistika']);
+// Gradovi
+Route::get('/gradovi', [GradController::class, 'index']);
+Route::get('/gradovi/statistika', [GradController::class, 'statistika']);
+Route::get('/gradovi/{id}/nekretnine', [GradController::class, 'nekretnineUGradu']);
 
+// Eksterni API Servisi
+Route::get('/nekretnine/{id}/konvertuj-cenu', [ExternalApiController::class, 'konvertujCenu']);
+Route::get('/vremenska-prognoza', [ExternalApiController::class, 'vremenskaPrognoza']);
+
+
+/*
+|--------------------------------------------------------------------------
+| Zaštićene Rute (Zahtevaju Sanctum Token)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Odjava
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/nekretnine', [NekretninaController::class, 'store']);
-    Route::put('/nekretnine/{id}', [NekretninaController::class, 'update']);
-    Route::delete('/nekretnine/{id}', [NekretninaController::class, 'destroy']);
-
-    Route::post('/gradovi', [GradController::class, 'store']);
-
-    Route::get('/upiti', [UpitController::class, 'index']);
-    Route::post('/upiti', [UpitController::class, 'store']);
-    Route::put('/upiti/{id}/status', [UpitController::class, 'promeniStatus']);
-
+    // --- ULOGA: KORISNIK (Svi ulogovani korisnici) ---
     Route::get('/kalkulacije', [KreditnaKalkulacijaController::class, 'index']);
-    Route::post('/kalkulacije', [KreditnaKalkulacijaController::class, 'izracunaj']);
+    Route::post('/kalkulacije/izracunaj', [KreditnaKalkulacijaController::class, 'izracunaj']);
+    Route::post('/upiti', [UpitController::class, 'store']);
+
+    // --- ULOGA: AGENT I ADMIN (Kreiranje i izmena nekretnina, obrada upita) ---
+    Route::middleware('role:agent,admin')->group(function () {
+        Route::post('/nekretnine', [NekretninaController::class, 'store']);
+        Route::put('/nekretnine/{id}', [NekretninaController::class, 'update']);
+        Route::get('/upiti', [UpitController::class, 'index']);
+        Route::patch('/upiti/{id}/status', [UpitController::class, 'promeniStatus']);
+    });
+
+    // --- ULOGA: ADMIN (Brisanje nekretnina, upravljanje gradovima) ---
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/nekretnine/{id}', [NekretninaController::class, 'destroy']);
+        Route::post('/gradovi', [GradController::class, 'store']);
+        Route::delete('/gradovi/{id}', [GradController::class, 'destroy']);
+    });
+
 });
