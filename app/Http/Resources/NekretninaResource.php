@@ -31,6 +31,7 @@ class NekretninaResource extends JsonResource
             'tip' => $this->tip,
             'status' => $this->status,
             'istaknuto' => (bool) $this->is_istaknuto,
+            'slika_putanja' => $this->slika_putanja ? asset($this->slika_putanja) : null,
             'grad' => new GradResource($this->whenLoaded('grad')),
         ];
     }

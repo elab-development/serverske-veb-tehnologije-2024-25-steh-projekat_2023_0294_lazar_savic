@@ -8,6 +8,7 @@ use App\Models\Nekretnina;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class NekretninaController extends Controller
 {
@@ -42,6 +43,7 @@ class NekretninaController extends Controller
             'tip' => 'required|in:stan,kuca,poslovni_prostor,zemljiste',
             'status' => 'required|in:prodaja,izdavanje',
             'is_istaknuto' => 'boolean',
+            'slika' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'grad_id' => 'required|exists:gradovi,id',
         ]);
 
@@ -55,6 +57,14 @@ class NekretninaController extends Controller
 
         // DB Transakcija 
         $nekretnina = DB::transaction(function () use ($request) {
+            $slikaPutanja = null;
+
+            if ($request->hasFile('slika')) {
+                // Skladistenje fajla
+                $path = $request->file('slika')->store('nekretnine', 'public');
+                $slikaPutanja = Storage::url($path);
+            }
+
             return Nekretnina::create([
                 'naslov' => $request->naslov,
                 'opis' => $request->opis,
@@ -65,6 +75,7 @@ class NekretninaController extends Controller
                 'tip' => $request->tip,
                 'status' => $request->status,
                 'is_istaknuto' => $request->is_istaknuto ?? false,
+                'slika_putanja' => $slikaPutanja,
                 'grad_id' => $request->grad_id,
                 'korisnik_id' => $request->user()->id,
             ]);
