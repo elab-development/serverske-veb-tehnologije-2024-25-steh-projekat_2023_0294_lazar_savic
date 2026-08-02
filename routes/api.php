@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/kalkulacije', [KreditnaKalkulacijaController::class, 'index']);
     Route::post('/kalkulacije/izracunaj', [KreditnaKalkulacijaController::class, 'izracunaj']);
     Route::post('/upiti', [UpitController::class, 'store']);
+    Route::get('/nekretnine/{id}/upiti', [NekretninaController::class, 'upitiZaNekretninu']);
 
     // --- ULOGA: AGENT I ADMIN (Kreiranje i izmena nekretnina, obrada upita) ---
     Route::middleware('role:agent,admin')->group(function () {

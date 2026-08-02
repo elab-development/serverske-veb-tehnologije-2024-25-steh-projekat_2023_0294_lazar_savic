@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\NekretninaResource;
+use App\Http\Resources\UpitResource;
 use App\Models\Nekretnina;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -51,18 +53,22 @@ class NekretninaController extends Controller
             ], 422);
         }
 
-        $nekretnina = Nekretnina::create([
-            'naslov' => $request->naslov,
-            'opis' => $request->opis,
-            'cena' => $request->cena,
-            'kvadratura' => $request->kvadratura,
-            'adresa' => $request->adresa,
-            'tip' => $request->tip,
-            'status' => $request->status,
-            'is_istaknuto' => $request->is_istaknuto ?? false,
-            'grad_id' => $request->grad_id,
-            'korisnik_id' => $request->user()->id,
-        ]);
+        // DB Transakcija 
+        $nekretnina = DB::transaction(function () use ($request) {
+            return Nekretnina::create([
+                'naslov' => $request->naslov,
+                'opis' => $request->opis,
+                'cena' => $request->cena,
+                'popust' => $request->popust ?? 0,
+                'kvadratura' => $request->kvadratura,
+                'adresa' => $request->adresa,
+                'tip' => $request->tip,
+                'status' => $request->status,
+                'is_istaknuto' => $request->is_istaknuto ?? false,
+                'grad_id' => $request->grad_id,
+                'korisnik_id' => $request->user()->id,
+            ]);
+        });
 
         return response()->json([
             'status' => true,
@@ -176,6 +182,28 @@ class NekretninaController extends Controller
         return response()->json([
             'status' => true,
             'rezultati' => $query->with('grad')->get()
+        ], 200);
+    }
+
+    // GET /api/nekretnine/{id}/upiti (Ugnježđena ruta za prikaz upita određene nekretnine)
+    public function upitiZaNekretninu($id)
+    {
+        $nekretnina = Nekretnina::find($id);
+
+        if (!$nekretnina) {
+            return response()->json([
+                'status' => false,
+                'poruka' => 'Nekretnina nije pronađena'
+            ], 404);
+        }
+
+        $upiti = $nekretnina->upiti()->with('korisnik')->get();
+
+        return response()->json([
+            'status' => true,
+            'nekretnina' => $nekretnina->naslov,
+            'broj_upita' => $upiti->count(),
+            'podaci' => UpitResource::collection($upiti)
         ], 200);
     }
 }
