@@ -6,6 +6,7 @@ use App\Http\Resources\UpitResource;
 use App\Models\Upit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\StoreUpitRequest;
 
 class UpitController extends Controller
 {
@@ -28,25 +29,14 @@ class UpitController extends Controller
 
     // POST api/upiti - Create One
 
-    public function store(Request $request)
+    public function store(StoreUpitRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'poruka' => 'required|string|min:10',
-            'nekretnina_id' => 'required|exists:nekretnine,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'poruka' => 'Greška pri validaciji',
-                'greske' => $validator->errors()
-            ], 422);
-        }
+        $validated = $request->validated();
 
         $upit = Upit::create([
-            'poruka' => $request->poruka,
+            'poruka' => $validated['poruka'],
             'status_upita' => 'neobradjeno',
-            'nekretnina_id' => $request->nekretnina_id,
+            'nekretnina_id' => $validated['nekretnina_id'],
             'korisnik_id' => $request->user()->id,
         ]);
 

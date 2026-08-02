@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\StoreNekretninaRequest;
 
 class NekretninaController extends Controller
 {
@@ -32,52 +33,30 @@ class NekretninaController extends Controller
 
     // POST /api/nekretnine - Create New
 
-    public function store(Request $request)
+    public function store(StoreNekretninaRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'naslov' => 'required|string|max:255',
-            'opis' => 'required|string',
-            'cena' => 'required|numeric|min:0',
-            'popust' => 'nullable|numeric|min:0|max:100',
-            'kvadratura' => 'required|integer|min:1',
-            'adresa' => 'required|string',
-            'tip' => 'required|in:stan,kuca,poslovni_prostor,zemljiste',
-            'status' => 'required|in:prodaja,izdavanje',
-            'is_istaknuto' => 'boolean',
-            'slika' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'grad_id' => 'required|exists:gradovi,id',
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'poruka' => 'Greska pri validaciji.',
-                'greske' => $validator->errors(),
-            ], 422);
-        }
-
-        // DB Transakcija 
-        $nekretnina = DB::transaction(function () use ($request) {
+        $nekretnina = DB::transaction(function () use ($request, $validated) {
             $slikaPutanja = null;
 
             if ($request->hasFile('slika')) {
-                // Skladistenje fajla
                 $path = $request->file('slika')->store('nekretnine', 'public');
                 $slikaPutanja = Storage::url($path);
             }
 
             return Nekretnina::create([
-                'naslov' => $request->naslov,
-                'opis' => $request->opis,
-                'cena' => $request->cena,
-                'popust' => $request->popust ?? 0,
-                'kvadratura' => $request->kvadratura,
-                'adresa' => $request->adresa,
-                'tip' => $request->tip,
-                'status' => $request->status,
-                'is_istaknuto' => $request->is_istaknuto ?? false,
+                'naslov' => $validated['naslov'],
+                'opis' => $validated['opis'],
+                'cena' => $validated['cena'],
+                'popust' => $validated['popust'] ?? 0,
+                'kvadratura' => $validated['kvadratura'],
+                'adresa' => $validated['adresa'],
+                'tip' => $validated['tip'],
+                'status' => $validated['status'],
+                'is_istaknuto' => $validated['is_istaknuto'] ?? false,
                 'slika_putanja' => $slikaPutanja,
-                'grad_id' => $request->grad_id,
+                'grad_id' => $validated['grad_id'],
                 'korisnik_id' => $request->user()->id,
             ]);
         });
@@ -86,8 +65,8 @@ class NekretninaController extends Controller
 
         return response()->json([
             'status' => true,
-            'poruka' => 'Nekretnina uspešno kreirana',
-            'podaci' => $nekretnina
+            'poruka' => 'Nekretnina uspešno kreirana sa slikom',
+            'podaci' => new NekretninaResource($nekretnina)
         ], 201);
     }
 
