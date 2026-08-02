@@ -9,6 +9,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class NekretninaController extends Controller
 {
@@ -80,6 +81,8 @@ class NekretninaController extends Controller
                 'korisnik_id' => $request->user()->id,
             ]);
         });
+
+        Cache::forget('gradovi_analitika');
 
         return response()->json([
             'status' => true,
@@ -179,6 +182,8 @@ class NekretninaController extends Controller
         }
 
         $nekretnina->delete();
+
+        Cache::forget('gradovi_analitika');
 
         return response()->json([
             'status' => true,
