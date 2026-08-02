@@ -113,4 +113,57 @@ class GradController extends Controller
             'podaci' => $izvestaj
         ], 200);
     }
+
+    // GET /api/gradovi/export-csv (Eksport analitike u CSV formatu)
+    public function exportCsv()
+    {
+        $gradovi = DB::table('gradovi')
+            ->join('nekretnine', 'gradovi.id', '=', 'nekretnine.grad_id')
+            ->leftJoin('upiti', 'nekretnine.id', '=', 'upiti.nekretnina_id')
+            ->select(
+                'gradovi.naziv as grad',
+                'gradovi.postanski_broj',
+                DB::raw('COUNT(DISTINCT nekretnine.id) as ukupno_nekretnina'),
+                DB::raw('COUNT(DISTINCT upiti.id) as ukupno_upita'),
+                DB::raw('ROUND(AVG(nekretnine.cena), 2) as prosecna_cena_eur'),
+                DB::raw('ROUND(AVG(nekretnine.cena / nekretnine.kvadratura), 2) as prosecna_cena_po_m2')
+            )
+            ->groupBy('gradovi.id', 'gradovi.naziv', 'gradovi.postanski_broj')
+            ->get();
+
+        $fileName = 'analitika_trzista_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            "Content-type" => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function () use ($gradovi) {
+            $file = fopen('php://output', 'w');
+
+            // Dodavanje UTF-8 BOM za ispravan prikaz ćirilice/latinice u Excel-u
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Imena kolona
+            fputcsv($file, ['Grad', 'Poštanski Broj', 'Ukupno Nekretnina', 'Ukupno Upita', 'Prosečna Cena (EUR)', 'Prosečna Cena po m2 (EUR)']);
+
+            foreach ($gradovi as $row) {
+                fputcsv($file, [
+                    $row->grad,
+                    $row->postanski_broj,
+                    $row->ukupno_nekretnina,
+                    $row->ukupno_upita,
+                    $row->prosecna_cena_eur,
+                    $row->prosecna_cena_po_m2
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
