@@ -15,6 +15,7 @@ class Nekretnina extends Model
         'naslov',
         'opis',
         'cena',
+        'popust',
         'kvadratura',
         'adresa',
         'tip',
