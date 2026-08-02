@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UpitResource;
 use App\Models\Upit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +17,12 @@ class UpitController extends Controller
 
         return response()->json([
             'status' => true,
-            'podaci' => $upiti
+            'podaci' => UpitResource::collection($upiti),
+            'meta' => [
+                'trenutna_stranica' => $upiti->currentPage(),
+                'ukupno_stranica' => $upiti->lastPage(),
+                'ukupno_stavki' => $upiti->total(),
+            ]
         ], 200);
     }
 
@@ -44,10 +50,12 @@ class UpitController extends Controller
             'korisnik_id' => $request->user()->id,
         ]);
 
+        $upit->load(['nekretnina', 'korisnik']);
+
         return response()->json([
             'status' => true,
             'poruka' => 'Upit uspešno poslat',
-            'podaci' => $upit
+            'podaci' => new UpitResource($upit)
         ], 201);
     }
 
@@ -55,7 +63,7 @@ class UpitController extends Controller
 
     public function promeniStatus(Request $request, $id)
     {
-        $upit = Upit::with($id);
+        $upit = Upit::find($id);
 
         if (!$upit) {
             return response()->json([
@@ -77,11 +85,12 @@ class UpitController extends Controller
         }
 
         $upit->update(['status_upita' => $request->status_upita]);
+        $upit->load(['nekretnina', 'korisnik']);
 
         return response()->json([
             'status' => true,
-            'poruka' => 'Status upita uspesno promenjen.',
-            'podaci' => $upit,
+            'poruka' => 'Status upita uspešno izmenjen',
+            'podaci' => new UpitResource($upit)
         ], 200);
     }
 }

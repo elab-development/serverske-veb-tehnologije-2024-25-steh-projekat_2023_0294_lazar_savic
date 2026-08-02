@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KreditnaKalkulacija;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\KreditnaKalkulacijaResource;
 
 class KreditnaKalkulacijaController extends Controller
 {
@@ -12,11 +13,13 @@ class KreditnaKalkulacijaController extends Controller
 
     public function index(Request $request)
     {
-        $kalkulacije = KreditnaKalkulacija::where('korisnik_id', $request->user()->id)->with('nekretnina')->get();
+        $kalkulacije = KreditnaKalkulacija::where('korisnik_id', $request->user()->id)
+            ->with('nekretnina')
+            ->get();
 
         return response()->json([
             'status' => true,
-            'podaci' => $kalkulacije
+            'podaci' => KreditnaKalkulacijaResource::collection($kalkulacije)
         ], 200);
     }
 
@@ -66,7 +69,7 @@ class KreditnaKalkulacijaController extends Controller
         return response()->json([
             'status' => true,
             'poruka' => 'Kalkulacija uspešno izračunata i sačuvana',
-            'podaci' => $kalkulacija
+            'podaci' => new KreditnaKalkulacijaResource($kalkulacija),
         ], 201);
     }
 }

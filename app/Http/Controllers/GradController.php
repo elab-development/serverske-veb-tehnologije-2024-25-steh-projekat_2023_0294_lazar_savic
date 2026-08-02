@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GradResource;
+use App\Http\Resources\NekretninaResource;
 use App\Models\Grad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,8 +17,8 @@ class GradController extends Controller
         $gradovi = Grad::all();
 
         return response()->json([
-            'stats' => true,
-            'podaci' => $gradovi,
+            'status' => true,
+            'podaci' => GradResource::collection($gradovi)
         ], 200);
     }
 
@@ -55,15 +57,15 @@ class GradController extends Controller
         if (!$grad) {
             return response()->json([
                 'status' => false,
-                'poruka' => 'Grad nije pronadjen',
+                'poruka' => 'Grad nije pronađen'
             ], 404);
         }
 
         return response()->json([
             'status' => true,
-            'grad' => $grad->naziv,
+            'grad' => new GradResource($grad),
             'broj_nekretnina' => $grad->nekretnine->count(),
-            'nekretnine' => $grad->nekretnine
+            'nekretnine' => NekretninaResource::collection($grad->nekretnine)
         ], 200);
     }
 

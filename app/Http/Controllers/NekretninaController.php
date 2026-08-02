@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NekretninaResource;
 use App\Models\Nekretnina;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +17,12 @@ class NekretninaController extends Controller
 
         return response()->json([
             'status' => true,
-            'podaci' => $nekretnine,
+            'podaci' => NekretninaResource::collection($nekretnine),
+            'meta' => [
+                'trenutna_stranica' => $nekretnine->currentPage(),
+                'ukupno_stranica' => $nekretnine->lastPage(),
+                'ukupno_stavki' => $nekretnine->total(),
+            ]
         ], 200);
     }
 
@@ -69,7 +75,7 @@ class NekretninaController extends Controller
 
     public function show($id)
     {
-        $nekretnina = Nekretnina::with(['grad', 'korisnik', 'upiti'])->find($id);
+        $nekretnina = Nekretnina::with('grad')->find($id);
 
         if (!$nekretnina) {
             return response()->json([
@@ -80,7 +86,7 @@ class NekretninaController extends Controller
 
         return response()->json([
             'status' => true,
-            'podaci' => $nekretnina
+            'podaci' => new NekretninaResource($nekretnina)
         ], 200);
     }
 
