@@ -110,6 +110,13 @@ class NekretninaController extends Controller
             ], 404);
         }
 
+        if ($request->user()->cannot('update', $nekretnina)) {
+            return response()->json([
+                'status' => false,
+                'poruka' => 'Pristup odbijen. Niste vlasnik ove nekretnine.'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'naslov' => 'sometimes|string|max:255',
             'opis' => 'sometimes|string',
@@ -142,7 +149,7 @@ class NekretninaController extends Controller
 
     // DELETE api/nekretnine/{id} - Delete One
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $nekretnina = Nekretnina::find($id);
 
@@ -151,6 +158,13 @@ class NekretninaController extends Controller
                 'status' => false,
                 'poruka' => 'Nekretnina nije pronađena'
             ], 404);
+        }
+
+        if ($request->user()->cannot('delete', $nekretnina)) {
+            return response()->json([
+                'status' => false,
+                'poruka' => 'Pristup odbijen. Niste vlasnik ove nekretnine.'
+            ], 403);
         }
 
         $nekretnina->delete();
