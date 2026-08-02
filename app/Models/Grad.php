@@ -14,6 +14,6 @@ class Grad extends Model
 
     public function nekretnine()
     {
-        return $this->hasMany(Nekretnine::class, 'grad_id');
+        return $this->hasMany(Nekretnina::class, 'grad_id');
     }
 }

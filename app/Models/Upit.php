@@ -21,7 +21,7 @@ class Upit extends Model
 
     public function nekretnina()
     {
-        return $this->belongsTo(Nekretnine::class, 'nekretnina_id');
+        return $this->belongsTo(Nekretnina::class, 'nekretnina_id');
     }
 
     public function korisnik()

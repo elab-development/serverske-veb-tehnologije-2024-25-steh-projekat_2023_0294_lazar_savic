@@ -52,7 +52,7 @@ class User extends Authenticatable
     // Metode
     public function nekretnine()
     {
-        return $this->hasMany(Nekretnine::class, 'korisnik_id');
+        return $this->hasMany(Nekretnina::class, 'korisnik_id');
     }
 
     public function upiti()
@@ -62,6 +62,6 @@ class User extends Authenticatable
 
     public function kreditneKalkulacije()
     {
-        return $this->hasMany(KreditneKalkulacije::class, 'korisnik_id');
+        return $this->hasMany(KreditnaKalkulacija::class, 'korisnik_id');
     }
 }
