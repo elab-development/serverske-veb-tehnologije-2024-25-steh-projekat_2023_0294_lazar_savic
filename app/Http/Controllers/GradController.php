@@ -7,6 +7,7 @@ use App\Http\Resources\NekretninaResource;
 use App\Models\Grad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class GradController extends Controller
 {
@@ -78,6 +79,33 @@ class GradController extends Controller
         return response()->json([
             'status' => true,
             'podaci' => $statistika
+        ], 200);
+    }
+
+    // GET /api/gradovi/analitika-trzista (Složeni SQL upit sa višestrukim JOIN-om i agregacijom)
+    public function analitikaTrzista()
+    {
+        $izvestaj = DB::table('gradovi')
+            ->join('nekretnine', 'gradovi.id', '=', 'nekretnine.grad_id')
+            ->join('users', 'nekretnine.korisnik_id', '=', 'users.id')
+            ->leftJoin('upiti', 'nekretnine.id', '=', 'upiti.nekretnina_id')
+            ->select(
+                'gradovi.naziv as grad',
+                'gradovi.postanski_broj',
+                DB::raw('COUNT(DISTINCT nekretnine.id) as ukupno_nekretnina'),
+                DB::raw('COUNT(DISTINCT upiti.id) as ukupno_upita'),
+                DB::raw('ROUND(AVG(nekretnine.cena), 2) as prosecna_cena_eur'),
+                DB::raw('ROUND(AVG(nekretnine.cena / nekretnine.kvadratura), 2) as prosecna_cena_po_m2')
+            )
+            ->groupBy('gradovi.id', 'gradovi.naziv', 'gradovi.postanski_broj')
+            ->having('ukupno_nekretnina', '>', 0)
+            ->orderByDesc('prosecna_cena_po_m2')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'poruka' => 'Izveštaj o analitici tržišta po gradovima uspešno generisan.',
+            'podaci' => $izvestaj
         ], 200);
     }
 }

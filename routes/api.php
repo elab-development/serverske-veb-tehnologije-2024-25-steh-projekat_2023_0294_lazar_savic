@@ -30,6 +30,7 @@ Route::get('/nekretnine/{id}', [NekretninaController::class, 'show']);
 Route::get('/gradovi', [GradController::class, 'index']);
 Route::get('/gradovi/statistika', [GradController::class, 'statistika']);
 Route::get('/gradovi/{id}/nekretnine', [GradController::class, 'nekretnineUGradu']);
+Route::get('/gradovi/analitika-trzista', [GradController::class, 'analitikaTrzista']);
 
 // Eksterni API Servisi
 Route::get('/nekretnine/{id}/konvertuj-cenu', [ExternalApiController::class, 'konvertujCenu']);
