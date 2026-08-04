@@ -15,7 +15,7 @@ class KreditnaKalkulacija extends Model
         'iznos_kredita',
         'ucesce',
         'godisnja_kamata',
-        'period_otplate_godina',
+        'period_otplate_kredita',
         'mesecna_rata',
         'valuta',
         'korisnik_id',
