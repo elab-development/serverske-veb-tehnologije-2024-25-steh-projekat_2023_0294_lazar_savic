@@ -14,15 +14,13 @@ class UpitController extends Controller
 
     public function index()
     {
-        $upiti = Upit::with(['nekretnina', 'korisnik'])->paginate(15);
+        $upiti = Upit::with(['nekretnina', 'korisnik'])->get();
 
         return response()->json([
             'status' => true,
             'podaci' => UpitResource::collection($upiti),
             'meta' => [
-                'trenutna_stranica' => $upiti->currentPage(),
-                'ukupno_stranica' => $upiti->lastPage(),
-                'ukupno_stavki' => $upiti->total(),
+                'ukupno_stavki' => $upiti->count(),
             ]
         ], 200);
     }
@@ -35,6 +33,7 @@ class UpitController extends Controller
 
         $upit = Upit::create([
             'poruka' => $validated['poruka'],
+            'kontakt_email' => $validated['kontakt_email'],
             'status_upita' => 'neobradjeno',
             'nekretnina_id' => $validated['nekretnina_id'],
             'korisnik_id' => $request->user()->id,

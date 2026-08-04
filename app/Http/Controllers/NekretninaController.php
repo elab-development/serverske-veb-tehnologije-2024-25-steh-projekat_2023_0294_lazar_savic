@@ -18,15 +18,13 @@ class NekretninaController extends Controller
 
     public function index()
     {
-        $nekretnine = Nekretnina::with(['grad', 'korisnik'])->paginate(10);
+        $nekretnine = Nekretnina::with(['grad', 'korisnik'])->get();
 
         return response()->json([
             'status' => true,
             'podaci' => NekretninaResource::collection($nekretnine),
             'meta' => [
-                'trenutna_stranica' => $nekretnine->currentPage(),
-                'ukupno_stranica' => $nekretnine->lastPage(),
-                'ukupno_stavki' => $nekretnine->total(),
+                'ukupno_stavki' => $nekretnine->count(),
             ]
         ], 200);
     }

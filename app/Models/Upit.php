@@ -13,7 +13,7 @@ class Upit extends Model
 
     protected $fillable = [
         'poruka',
-        'kontakt_telefon',
+        'kontakt_email',
         'status_upita',
         'nekretnina_id',
         'korisnik_id',

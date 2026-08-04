@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
 
             $table->text('poruka');
-            $table->string('kontakt_telefon')->nullable();
+            $table->string('kontakt_email')->nullable();
             $table->enum('status_upita', ['neobradjeno', 'u_obradi', 'zavrseno'])->default('neobradjeno');
 
             // Foreign keys

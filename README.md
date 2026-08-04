@@ -2,9 +2,7 @@
 
 ## 1. O Projektu
 
-Ovaj projekat predstavlja naprednu veb platformu namenjenu za oglašavnje nekretnina koje se prodaju ili rentiraju. Sistem pruža sveobuhvatnu infrastrukturu za pretragu, ponudu i analitiku tržišta nekretnina, uz podršku za različite nivoe pristupa korisnika (administratori, agenti i obavezni registrovani korisnici).
-
-Aplikacija je projektovana kao čista decoupled RESTful API arhitektura, omogućavajući potpunu nezavisnost korisničkog interfejsa od poslovne logike na bekendu.
+Ovaj projekat predstavlja veb platformu namenjenu za oglašavnje nekretnina koje se prodaju ili rentiraju. Sistem pruža sveobuhvatnu infrastrukturu za pretragu, ponudu i analitiku tržišta nekretnina, uz podršku za različite nivoe pristupa korisnika (administratori, agenti i korisnici).
 
 ---
 
@@ -49,7 +47,7 @@ Pratite sledeće korake za lokalno podizanje projekta:
 ### 1. Kloniranje repozitorijuma
 
 ```bash
-git clone <URL_VAŠEG_REPOZITORIJUMA>
+git clone <https://github.com/elab-development/serverske-veb-tehnologije-2024-25-steh-projekat_2023_0294_lazar_savic>
 cd steh-nekretnine
 ```
 

@@ -19,7 +19,7 @@ class UpitFactory extends Factory
     {
         return [
             'poruka' => $this->faker->text(150),
-            'kontakt_telefon' => $this->faker->phoneNumber(),
+            'kontakt_email' => $this->faker->phoneNumber(),
             'status_upita' => 'neobradjeno',
             'nekretnina_id' => \App\Models\Nekretnina::factory(),
             'korisnik_id' => \App\Models\User::factory(),

@@ -16,6 +16,7 @@ class StoreUpitRequest extends FormRequest
         return [
             'poruka' => 'required|string|min:10',
             'nekretnina_id' => 'required|exists:nekretnine,id',
+            'kontakt_email' => 'required|email',
         ];
     }
 }
