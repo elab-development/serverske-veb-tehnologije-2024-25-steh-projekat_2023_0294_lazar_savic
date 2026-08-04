@@ -30,8 +30,8 @@ class KreditnaKalkulacijaController extends Controller
         $validator = Validator::make($request->all(), [
             'iznos_kredita' => 'required|numeric|min:1000',
             'ucesce' => 'required|numeric|min:0',
-            'kamatna_stopa' => 'required|numeric|min:0.1|max:20',
-            'period_otplate_godina' => 'required|integer|min:1|max:40',
+            'godisnja_kamata' => 'required|numeric|min:0.1|max:20',
+            'period_otplate_kredita' => 'required|integer|min:1|max:40',
             'nekretnina_id' => 'nullable|exists:nekretnine,id',
         ]);
 
@@ -44,8 +44,8 @@ class KreditnaKalkulacijaController extends Controller
         }
 
         $glavnica = $request->iznos_kredita - $request->ucesce;
-        $mesecnaKamatnaStopa = ($request->kamatna_stopa / 100) / 12;
-        $brojMeseci = $request->period_otplate_godina * 12;
+        $mesecnaKamatnaStopa = ($request->godisnja_kamata / 100) / 12;
+        $brojMeseci = $request->period_otplate_kredita * 12;
 
         if ($mesecnaKamatnaStopa > 0) {
             $mesecnaRata = $glavnica * ($mesecnaKamatnaStopa * pow(1 + $mesecnaKamatnaStopa, $brojMeseci))
@@ -59,8 +59,8 @@ class KreditnaKalkulacijaController extends Controller
         $kalkulacija = KreditnaKalkulacija::create([
             'iznos_kredita' => $request->iznos_kredita,
             'ucesce' => $request->ucesce,
-            'kamatna_stopa' => $request->kamatna_stopa,
-            'period_otplate_godina' => $request->period_otplate_godina,
+            'godisnja_kamata' => $request->godisnja_kamata,
+            'period_otplate_kredita' => $request->period_otplate_kredita,
             'mesecna_rata' => $mesecnaRata,
             'nekretnina_id' => $request->nekretnina_id,
             'korisnik_id' => $request->user()->id,

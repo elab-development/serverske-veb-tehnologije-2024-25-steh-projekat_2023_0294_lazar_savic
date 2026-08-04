@@ -14,7 +14,7 @@ class KreditnaKalkulacijaResource extends JsonResource
             'iznos_kredita' => $this->iznos_kredita,
             'ucesce' => $this->ucesce,
             'neto_iznos_kredita' => $this->iznos_kredita - $this->ucesce,
-            'kamatna_stopa' => $this->kamatna_stopa . '%',
+            'godisnja_kamata' => $this->godisnja_kamata . '%',
             'period_otplate_kredita' => $this->period_otplate_kredita,
             'mesecna_rata' => $this->mesecna_rata,
             'nekretnina' => new NekretninaResource($this->whenLoaded('nekretnina')),
