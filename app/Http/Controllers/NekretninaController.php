@@ -22,7 +22,7 @@ class NekretninaController extends Controller
 
         return response()->json([
             'status' => true,
-            'podaci' => NekretninaResource::collection(Nekretnina::paginate(10));,
+            'podaci' => NekretninaResource::collection(Nekretnina::paginate(10)),
             'meta' => [
                 'ukupno_stavki' => $nekretnine->count(),
             ]
