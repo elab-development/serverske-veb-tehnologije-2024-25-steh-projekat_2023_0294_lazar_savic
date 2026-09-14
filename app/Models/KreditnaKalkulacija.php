@@ -25,4 +25,9 @@ class KreditnaKalkulacija extends Model
     {
         return $this->belongsTo(User::class, 'korisnik_id');
     }
+
+    public function nekretnina(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Nekretnina::class);
+    }
 }
